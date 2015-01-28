@@ -5,7 +5,10 @@
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  gproc,
+                  jsx,
+                  cowboy
                  ]},
   {mod, { auction_demo_app, []}},
   {env, []}

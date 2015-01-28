@@ -10,11 +10,11 @@ deps:
 	$(REBAR) compile
 
 compile:
-	$(REBAR) compile skip_deps=true
+	$(REBAR) compile
 
 clean:
 	rm -rf deps/
 	$(REBAR) clean
 
 dev: compile
-	$(ERL) -pa $(CURDIR)/ebin $(CURDIR)/deps/*/ebin
+	$(ERL) -pa $(CURDIR)/ebin $(CURDIR)/deps/*/ebin -s auction_demo_app
