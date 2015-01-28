@@ -24,6 +24,7 @@
             var self = {};
             var ws;
 
+            self.num_bars = 0;
             self.key = function(d) {
                 return d.pid;
             };
@@ -36,33 +37,52 @@
                 d3.select("body").selectAll("p").data(data, self.key).remove();
             };
 
-            self.create_data = function(data) {
-                console.log("create_data " + data);
-                var width = 420,
-                    barHeight = 20;
+            self.make_chart = function() {
+                var width = 1024,
+                    height = 768,
+                    num_bars = 100,
+                    num_dsps = 50,
+                    barHeight = height/num_bars;
 
                 var x = d3.scale.linear()
-                    .domain([0, d3.max(data, self.value)])
+                    .domain([0, num_dsps])
                     .range([0, width]);
 
-                var chart = d3.select(".chart")
-                    .attr("width", width)
-                    .attr("height", barHeight * data.length);
+                self.barHeight = barHeight;
+                self.x = x;
 
-                var bar = chart.selectAll("g")
+                self.chart = d3.select(".chart")
+                    .attr("width", width)
+                    .attr("height", self.barHeight * num_bars);
+
+                return self.chart;
+            };
+
+            self.create_data = function(data) {
+                console.log("create_data " + data);
+
+                var bar = self.chart.selectAll("g")
                     .data(data, self.key)
                     .enter().append("g")
-                    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+                    .attr("transform", function(d) { return "translate(0," + self.num_bars * self.barHeight + ")"; });
 
                 bar.append("rect")
-                    .attr("width", function(d) { return x(d.value); })
-                    .attr("height", barHeight - 1);
+                    .attr("width", function(d) { return self.x(d.value); })
+                    .attr("height", self.barHeight - 1);
 
                 bar.append("text")
-                    .attr("x", function(d) { return x(d.value) - 4; })
-                    .attr("y", barHeight / 2)
+                    .attr("x", function(d) { return self.x(d.value) - 4; })
+                    .attr("y", self.barHeight / 2)
                     .attr("dy", ".35em")
                     .text(function(d) { return d.pid; });
+
+                self.num_bars++; // not correct as we don't consider how long data was
+            }
+
+            self.update_data = function(data) {
+                console.log("update_data " + data);
+                d3.selectAll('rect').data(data, self.key)
+                    .attr("width", function(d) { return self.x(d.value); })
             }
 
             self.connect = function() {
@@ -75,7 +95,12 @@
                 ws.onmessage = function(e){
                     console.log(e);
                     json = JSON.parse(e.data);
-                    self.create_data(json.data);
+                    if (json.action == "create") {
+                        self.create_data(json.data);
+                    }
+                    if (json.action == "update") {
+                        self.update_data(json.data);
+                    }
                 }
                 return self;
             };
@@ -85,6 +110,7 @@
             };
 
             self.conjure = function(){
+                self.make_chart();
                 self.connect();
             };
 

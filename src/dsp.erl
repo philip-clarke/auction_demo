@@ -1,8 +1,8 @@
 -module(dsp).
 -compile([export_all, debug_info]).
 
-start(1) ->
-    [erlang:spawn(fun run/0)];
+start(0) ->
+    [];
 start(N) ->
     Pid = erlang:spawn(fun run/0),
     [Pid | start(N - 1)].
@@ -21,7 +21,7 @@ make_bid() ->
     random:seed(erlang:now()),
     Delay = Bid = random:uniform(5),
     %timer:sleep(Delay * 1000),
-    fac(Delay * 1000),
+    fac(Delay * 800),
     Bid.
 
 

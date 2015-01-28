@@ -1,12 +1,12 @@
 -module(auction).
 -compile([export_all, debug_info]).
 
-start(1) ->
-    Dsps = dsp:start(100),
-    erlang:spawn(fun() -> run(Dsps) end);
+start(0) ->
+    [];
 start(N) ->
-    Dsps = dsp:start(100),
+    Dsps = dsp:start(50),
     Pid = erlang:spawn(fun() -> run(Dsps) end),
+    demo_ws:send({create, Pid, 1}),
     [Pid | start(N - 1)].
 
 run(Dsps) ->
@@ -29,7 +29,8 @@ handle_bid_responses(AuctionId, Responses) ->
         finished ->
             choose_winner(Responses);
         {_Dsp, AuctionId, _Bid} = Response ->
-            io:format("~p~n", [Response]),
+            demo_ws:send({update, self(), length(Responses) + 1}),
+            %%io:format("~p~n", [Response]),
             handle_bid_responses(AuctionId, [Response|Responses]);
         {_Dsp, _AuctionId, _Bid} ->
             handle_bid_responses(AuctionId, Responses)
