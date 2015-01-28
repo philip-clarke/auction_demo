@@ -1,0 +1,12 @@
+{application, auction_demo,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { auction_demo_app, []}},
+  {env, []}
+ ]}.
