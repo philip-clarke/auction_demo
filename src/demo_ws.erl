@@ -20,15 +20,22 @@ websocket_handle(_Data, Req, State) ->
 
 websocket_info(post_init, Req, State) ->
     true = gproc:reg({p, l, ?MODULE}),
-    Data = [#{<<"pid">> => <<"1">>,<<"value">> => 10},
-            #{<<"pid">> => <<"2">>,<<"value">> => 20},
-            #{<<"pid">> => <<"3">>,<<"value">> => 30}],
+    Data = [
+                {action, init},
+                {data, [
+                        #{<<"pid">> => <<"1">>,<<"value">> => 30},
+                        #{<<"pid">> => <<"2">>,<<"value">> => 20},
+                        #{<<"pid">> => <<"3">>,<<"value">> => 30}
+                       ]
+                }
+           ],
     Json = jsx:encode(Data),
 	{reply, {text, Json}, Req, State};
-websocket_info(test, Req, State) ->
-    Data = [#{<<"pid">> => <<"1">>,<<"value">> => 30},
-            #{<<"pid">> => <<"2">>,<<"value">> => 20},
-            #{<<"pid">> => <<"3">>,<<"value">> => 10}],
+websocket_info({update, Pid, Value}, Req, State) ->
+    Data = [
+               {<<"action">>, update},
+               {<<"data">>, [#{<<"pid">> => <<"3">>,<<"value">> => 10}]}
+            ],
     Json = jsx:encode(Data),
 	{reply, {text, Json}, Req, State};
 websocket_info(_Info, Req, State) ->

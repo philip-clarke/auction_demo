@@ -74,7 +74,8 @@
 
                 ws.onmessage = function(e){
                     console.log(e);
-                    self.create_data(JSON.parse(e.data));
+                    json = JSON.parse(e.data);
+                    self.create_data(json.data);
                 }
                 return self;
             };
