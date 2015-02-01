@@ -5,6 +5,14 @@
   <meta charset="UTF-8">
   <title>D3 Websocket</title>
   <style type="text/css">
+        #col1{
+            float: left;
+            width: 200px;
+        }
+        #col2{
+            float: left;
+        }
+
         .chart rect {
             fill: steelblue;
         }
@@ -59,8 +67,6 @@
             };
 
             self.create_data = function(data) {
-                console.log("create_data " + data);
-
                 var bar = self.chart.selectAll("g")
                     .data(data, self.key)
                     .enter().append("g")
@@ -71,13 +77,19 @@
                     .attr("height", self.barHeight - 1);
 
                 bar.append("text")
-                    .attr("x", function(d) { return self.x(d.value) - 4; })
+                    //.attr("x", function(d) { return self.x(d.value); })
+                    .attr("x", 50)
                     .attr("y", self.barHeight / 2)
                     .attr("dy", ".35em")
                     .text(function(d) { return d.pid; });
 
                 self.num_bars++; // not correct as we don't consider how long data was
-            }
+            };
+
+            self.clear = function(data) {
+                self.chart.selectAll("g").remove();
+                self.num_bars = 0;
+            };
 
             self.update_data = function(data) {
                 console.log("update_data " + data);
@@ -100,6 +112,9 @@
                     }
                     if (json.action == "update") {
                         self.update_data(json.data);
+                    }
+                    if (json.action == "clear") {
+                        self.clear(json.data);
                     }
                 }
                 return self;
@@ -124,7 +139,16 @@
  </head>
 
  <body>
-<svg class="chart"></svg>
+   <div id="col1">
+      <form action="p", method="post">
+      <p><label for="auctions">Num Auctions: </label><input name="auctions" type="number" id="auctions" value=80 autocomplete="on"/></p>
+      <p><label for="clients">Num Clients per Auction: </label><input name="clients" type="number" id="clients" value="50" autocomplete="on"/></p>
+      <p><input type="submit" value="Submit" /></p>
+      </form>
+   </div>
+   <div id="col2">
+     <svg class="chart"></svg>
+   </div>
  
 
   

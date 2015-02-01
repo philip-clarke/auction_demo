@@ -1,13 +1,13 @@
 -module(auction).
 -compile([export_all, debug_info]).
 
-start(0) ->
+start(0, _) ->
     [];
-start(N) ->
-    Dsps = dsp:start(50),
+start(NumAuctions, NumDsps) ->
+    Dsps = dsp:start(NumDsps),
     Pid = erlang:spawn(fun() -> run(Dsps) end),
     demo_ws:send({create, Pid, 1}),
-    [Pid | start(N - 1)].
+    [Pid | start(NumAuctions - 1, NumDsps)].
 
 run(Dsps) ->
     AuctionId = erlang:now(),

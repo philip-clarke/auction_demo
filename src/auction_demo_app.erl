@@ -17,6 +17,7 @@ start(_Type, _Args) ->
         {'_', [
             {"/", cowboy_static, {priv_file, auction_demo, "index.html"}},
             {"/s/[...]", cowboy_static, {priv_dir, auction_demo, "static"}},
+            {"/p", rest_handler, []},
             {"/ws", demo_ws, []}
         ]}
     ]),

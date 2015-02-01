@@ -2,12 +2,15 @@
 
 -behaviour(cowboy_websocket).
 
--export([init/2, send/1]).
+-export([init/2, send/1, clear/0]).
 -export([websocket_handle/3]).
 -export([websocket_info/3]).
 
 send(Msg) ->
     gproc:send({p, l, ?MODULE}, Msg).
+
+clear() ->
+    gproc:send({p, l, ?MODULE}, clear).
 
 init(Req, Opts) ->
     self() ! post_init,
@@ -20,15 +23,13 @@ websocket_handle(_Data, Req, State) ->
 
 websocket_info(post_init, Req, State) ->
     true = gproc:reg({p, l, ?MODULE}),
+    Json = jsx:encode([]),
+	{reply, {text, Json}, Req, State};
+websocket_info(clear, Req, State) ->
     Data = [
-                {action, create},
-                {data, [
-                        #{<<"pid">> => <<"1">>, <<"value">> => 0},
-                        #{<<"pid">> => <<"2">>, <<"value">> => 2},
-                        #{<<"pid">> => <<"3">>, <<"value">> => 3}
-                       ]
-                }
-           ],
+               {action, clear},
+               {data, [#{}]}
+            ],
     Json = jsx:encode(Data),
 	{reply, {text, Json}, Req, State};
 websocket_info({create, Pid, Value}, Req, State) ->
