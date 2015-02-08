@@ -3,23 +3,23 @@
 
 start(0, _) ->
     [];
-start(NumAuctions, NumDsps) ->
-    Dsps = dsp:start(NumDsps),
-    Pid = erlang:spawn(fun() -> run(Dsps) end),
+start(NumAuctions, NumClients) ->
+    Clients = client:start(NumClients),
+    Pid = erlang:spawn(fun() -> run(Clients) end),
     demo_ws:send({create, Pid, 1}),
-    [Pid | start(NumAuctions - 1, NumDsps)].
+    [Pid | start(NumAuctions - 1, NumClients)].
 
-run(Dsps) ->
+run(Clients) ->
     AuctionId = erlang:now(),
-    send_bid_requests(AuctionId, Dsps),
+    send_bid_requests(AuctionId, Clients),
     handle_bid_responses(AuctionId).
 
 send_bid_requests(_AuctionId, []) ->
     erlang:send_after(5000, self(), finished),
     ok;
-send_bid_requests(AuctionId, [Dsp|Dsps]) ->
-    Dsp ! {self(), AuctionId},
-    send_bid_requests(AuctionId, Dsps).
+send_bid_requests(AuctionId, [Client|Clients]) ->
+    Client ! {self(), AuctionId},
+    send_bid_requests(AuctionId, Clients).
 
 handle_bid_responses(AuctionId) ->
     handle_bid_responses(AuctionId, []).
@@ -28,11 +28,11 @@ handle_bid_responses(AuctionId, Responses) ->
     receive
         finished ->
             choose_winner(Responses);
-        {_Dsp, AuctionId, _Bid} = Response ->
+        {_Client, AuctionId, _Bid} = Response ->
             demo_ws:send({update, self(), length(Responses) + 1}),
             %%io:format("~p~n", [Response]),
             handle_bid_responses(AuctionId, [Response|Responses]);
-        {_Dsp, _AuctionId, _Bid} ->
+        {_Client, _AuctionId, _Bid} ->
             handle_bid_responses(AuctionId, Responses)
     end.
 

@@ -32,8 +32,8 @@
             var self = {};
             var ws;
 
-            self.init = function(num_rows, num_dsps) {
-                self.make_chart(num_dsps, num_rows);
+            self.init = function(num_rows, num_clients) {
+                self.make_chart(num_clients, num_rows);
                 self.chart.selectAll("g").remove();
             };
 
@@ -45,14 +45,14 @@
                 return d.value;
             };
 
-            self.make_chart = function(num_dsps, num_dsps) {
+            self.make_chart = function(num_clients, num_clients) {
                 var width = 1024,
                     height = 768,
-                    num_dsps = num_dsps != 0 ? num_dsps : 100;
-                    barHeight = height/num_dsps;
+                    num_clients = num_clients != 0 ? num_clients : 100;
+                    barHeight = height/num_clients;
 
                 var x = d3.scale.linear()
-                    .domain([0, num_dsps])
+                    .domain([0, num_clients])
                     .range([0, width]);
                     
                 self.chart = d3.select(".chart")
@@ -60,7 +60,7 @@
                     .attr("height", height);
 
                 self.num_bars = 0;
-                self.num_dsps = num_dsps;
+                self.num_clients = num_clients;
                 self.barHeight = barHeight;
                 self.x = x;
 
@@ -146,8 +146,8 @@
    <script>
        function submit_form(e) {
            var num_auctions = document.getElementById('auctions').value;
-           var num_dsps = document.getElementById('clients').value;
-           demo.init(num_auctions, num_dsps);
+           var num_clients = document.getElementById('clients').value;
+           demo.init(num_auctions, num_clients);
            return true;
        };
        document.getElementById('form').addEventListener('submit', submit_form, false)

@@ -1,4 +1,4 @@
--module(dsp).
+-module(client).
 -compile([export_all, debug_info]).
 
 start(0) ->
