@@ -1,13 +1,16 @@
 -module(auction).
 -compile([export_all, debug_info]).
 
-start(0, _) ->
-    [];
-start(NumAuctions, NumClients) ->
-    Clients = client:start(NumClients),
+start(NumClients) ->
+    Clients = spawn_clients(NumClients),
     Pid = erlang:spawn(fun() -> run(Clients) end),
-    demo_ws:send({create, Pid, 1}),
-    [Pid | start(NumAuctions - 1, NumClients)].
+    demo_ws:send({create, Pid, 1}).
+
+spawn_clients(0) ->
+    [];
+spawn_clients(NumClients) ->
+    Pid = spawn(client, run, []),
+    [Pid | spawn_clients(NumClients - 1)].
 
 run(Clients) ->
     AuctionId = erlang:now(),

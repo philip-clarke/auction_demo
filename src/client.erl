@@ -1,12 +1,6 @@
 -module(client).
 -compile([export_all, debug_info]).
 
-start(0) ->
-    [];
-start(N) ->
-    Pid = erlang:spawn(fun run/0),
-    [Pid | start(N - 1)].
-
 run() ->
     handle_bid_request().
 
@@ -28,12 +22,11 @@ make_bid(sleep) ->
     timer:sleep(Delay * 1000),
     Bid;
 make_bid(work) ->
-    random:seed(erlang:now()),
     Delay = Bid = random:uniform(5),
     fac(Delay * 800),
     Bid;
 make_bid(crash) ->
-    exit(client_exit).
+    exit(bad_client).
 
 behaviour() ->
     [sleep, work, crash].

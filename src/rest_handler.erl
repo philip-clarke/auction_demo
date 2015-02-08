@@ -29,5 +29,5 @@ handle_post(Req, State) ->
     io:format("Auctions: ~p~n", [Auctions]),
 	Clients = proplists:get_value(<<"clients">>, PostVals),
     io:format("Clients: ~p~n", [Clients]),
-    auction:start(binary_to_integer(Auctions), binary_to_integer(Clients)),
+    exchange:start(binary_to_integer(Auctions), binary_to_integer(Clients)),
 	{true, Req2, State}.
