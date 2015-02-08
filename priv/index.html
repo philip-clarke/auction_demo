@@ -32,7 +32,11 @@
             var self = {};
             var ws;
 
-            self.num_bars = 0;
+            self.init = function(num_rows, num_dsps) {
+                self.make_chart(num_dsps, num_rows);
+                self.chart.selectAll("g").remove();
+            };
+
             self.key = function(d) {
                 return d.pid;
             };
@@ -41,32 +45,30 @@
                 return d.value;
             };
 
-            self.delete_data = function(data){
-                d3.select("body").selectAll("p").data(data, self.key).remove();
-            };
-
-            self.make_chart = function() {
+            self.make_chart = function(num_dsps, num_dsps) {
                 var width = 1024,
                     height = 768,
-                    num_bars = 100,
-                    num_dsps = 50,
-                    barHeight = height/num_bars;
+                    num_dsps = num_dsps != 0 ? num_dsps : 100;
+                    barHeight = height/num_dsps;
 
                 var x = d3.scale.linear()
                     .domain([0, num_dsps])
                     .range([0, width]);
-
-                self.barHeight = barHeight;
-                self.x = x;
-
+                    
                 self.chart = d3.select(".chart")
                     .attr("width", width)
-                    .attr("height", self.barHeight * num_bars);
+                    .attr("height", height);
+
+                self.num_bars = 0;
+                self.num_dsps = num_dsps;
+                self.barHeight = barHeight;
+                self.x = x;
 
                 return self.chart;
             };
 
             self.create_data = function(data) {
+                console.log("create_data " + data);
                 var bar = self.chart.selectAll("g")
                     .data(data, self.key)
                     .enter().append("g")
@@ -86,11 +88,6 @@
                 self.num_bars++; // not correct as we don't consider how long data was
             };
 
-            self.clear = function(data) {
-                self.chart.selectAll("g").remove();
-                self.num_bars = 0;
-            };
-
             self.update_data = function(data) {
                 console.log("update_data " + data);
                 d3.selectAll('rect').data(data, self.key)
@@ -105,16 +102,12 @@
                 }
 
                 ws.onmessage = function(e){
-                    console.log(e);
                     json = JSON.parse(e.data);
                     if (json.action == "create") {
                         self.create_data(json.data);
                     }
                     if (json.action == "update") {
                         self.update_data(json.data);
-                    }
-                    if (json.action == "clear") {
-                        self.clear(json.data);
                     }
                 }
                 return self;
@@ -125,7 +118,7 @@
             };
 
             self.conjure = function(){
-                self.make_chart();
+                self.init(0, 0);
                 self.connect();
             };
 
@@ -140,16 +133,25 @@
 
  <body>
    <div id="col1">
-      <form action="p", method="post">
+      <form action="p", method="post" id="form">
       <p><label for="auctions">Num Auctions: </label><input name="auctions" type="number" id="auctions" value=80 autocomplete="on"/></p>
       <p><label for="clients">Num Clients per Auction: </label><input name="clients" type="number" id="clients" value="50" autocomplete="on"/></p>
-      <p><input type="submit" value="Submit" /></p>
+      <p><input type="submit" value="Submit"/></p>
       </form>
    </div>
    <div id="col2">
      <svg class="chart"></svg>
    </div>
  
+   <script>
+       function submit_form(e) {
+           var num_auctions = document.getElementById('auctions').value;
+           var num_dsps = document.getElementById('clients').value;
+           demo.init(num_auctions, num_dsps);
+           return true;
+       };
+       document.getElementById('form').addEventListener('submit', submit_form, false)
+   </script>
 
   
  </body>

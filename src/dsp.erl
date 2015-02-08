@@ -20,8 +20,8 @@ handle_bid_request() ->
 make_bid() ->
     random:seed(erlang:now()),
     Delay = Bid = random:uniform(5),
-    %%timer:sleep(Delay * 1000),
-    fac(Delay * 800),
+    timer:sleep(Delay * 1000),
+    %%fac(Delay * 800),
     Bid.
 
 
