@@ -1,7 +1,7 @@
 -module(client).
 -compile([export_all, debug_info]).
 
-run() ->
+start() ->
     handle_bid_request().
 
 handle_bid_request() ->
