@@ -33,7 +33,8 @@ make_bid(crash) ->
     exit(bad_client).
 
 behaviour() ->
-    [return, crash].
+    [return, sleep, work, crash].
+    %[work].
 
 fac(1) ->
     1;
