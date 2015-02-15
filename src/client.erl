@@ -17,8 +17,12 @@ send_bid_response(Exchange, AuctionId) ->
     Bid = make_bid(Behaviour),
     Exchange ! {self(), AuctionId, Bid}.
 
+make_bid(return) ->
+    Bid = random:uniform(5),
+    Bid;
 make_bid(sleep) ->
-    Delay = Bid = random:uniform(5),
+    Bid = random:uniform(5),
+    Delay = 1,
     timer:sleep(Delay * 1000),
     Bid;
 make_bid(work) ->
@@ -29,7 +33,7 @@ make_bid(crash) ->
     exit(bad_client).
 
 behaviour() ->
-    [sleep, work, crash].
+    [return, crash].
 
 fac(1) ->
     1;

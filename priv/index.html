@@ -33,7 +33,7 @@
             var ws;
 
             self.init = function(num_rows, num_clients) {
-                self.make_chart(num_clients, num_rows);
+                self.make_chart(num_rows, num_clients);
                 self.chart.selectAll("g").remove();
             };
 
@@ -45,11 +45,16 @@
                 return d.value;
             };
 
-            self.make_chart = function(num_clients, num_clients) {
+            self.make_chart = function(num_rows, num_clients) {
                 var width = 1024,
-                    height = 768,
+                    height = 700,
                     num_clients = num_clients != 0 ? num_clients : 100;
-                    barHeight = height/num_clients;
+                if (num_rows < 7) {
+                    barHeight = 100
+                }
+                else{
+                    barHeight = height/num_rows;
+                }
 
                 var x = d3.scale.linear()
                     .domain([0, num_clients])
@@ -68,7 +73,7 @@
             };
 
             self.create_data = function(data) {
-                console.log("create_data " + data);
+                console.log("create_data " + JSON.stringify(data));
                 var bar = self.chart.selectAll("g")
                     .data(data, self.key)
                     .enter().append("g")
@@ -79,7 +84,6 @@
                     .attr("height", self.barHeight - 1);
 
                 bar.append("text")
-                    //.attr("x", function(d) { return self.x(d.value); })
                     .attr("x", 50)
                     .attr("y", self.barHeight / 2)
                     .attr("dy", ".35em")
@@ -89,7 +93,7 @@
             };
 
             self.update_data = function(data) {
-                console.log("update_data " + data);
+                console.log("update_data " + JSON.stringify(data));
                 d3.selectAll('rect').data(data, self.key)
                     .attr("width", function(d) { return self.x(d.value); })
             }
