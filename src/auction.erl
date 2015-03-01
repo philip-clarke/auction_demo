@@ -32,7 +32,7 @@ handle_bid_responses(AuctionId, Responses) ->
         finished ->
             choose_winner(Responses);
         {_Client, AuctionId, _Bid} = Response ->
-            demo_ws:send({update, self(), length(Responses) + 2}),
+            demo_ws:send({update, self(), length(Responses) + 1}),
             handle_bid_responses(AuctionId, [Response|Responses]);
         {_Client, _AuctionId, _Bid} ->
             handle_bid_responses(AuctionId, Responses)
