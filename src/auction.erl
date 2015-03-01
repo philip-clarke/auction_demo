@@ -27,19 +27,18 @@ send_bid_requests(AuctionId, [Client|Clients]) ->
 handle_bid_responses(AuctionId) ->
     handle_bid_responses(AuctionId, []).
 
-handle_bid_responses(AuctionId, Responses) ->
+handle_bid_responses(AuctionId, Bids) ->
     receive
         finished ->
-            choose_winner(Responses);
-        {_Client, AuctionId, _Bid} = Response ->
-            logger ! {update, self(), length(Responses) + 1},
-            handle_bid_responses(AuctionId, [Response|Responses]);
-        {_Client, _AuctionId, _Bid} ->
-            handle_bid_responses(AuctionId, Responses)
+            choose_winner(AuctionId, Bids);
+        {_From, AuctionId, Bid} ->
+            logger ! {update, self(), length(Bids) + 1},
+            handle_bid_responses(AuctionId, [Bid | Bids]);
+        {_From, _AuctionId, _Bid} ->
+            handle_bid_responses(AuctionId, Bids)
     end.
 
-choose_winner([]) ->
-    io:format("*** NO WINNER *** ~n");
-choose_winner(Bids) ->
-    [Winner|_] = lists:reverse(lists:keysort(3, Bids)),
-    io:format("*** WINNER *** ~p~n", [Winner]).
+choose_winner(AuctionId, []) ->
+    logger ! {no_winner, AuctionId};
+choose_winner(AuctionId, Bids) ->
+    logger ! {winner, AuctionId, lists:max(Bids)}.
