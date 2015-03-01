@@ -4,7 +4,7 @@
 start(NumClients) ->
     Clients = spawn_clients(NumClients),
     Pid = erlang:spawn(fun() -> init(Clients) end),
-    demo_ws:send({create, Pid, 1}).
+    logger ! {create, Pid, 1}.
 
 spawn_clients(0) ->
     [];
@@ -32,7 +32,7 @@ handle_bid_responses(AuctionId, Responses) ->
         finished ->
             choose_winner(Responses);
         {_Client, AuctionId, _Bid} = Response ->
-            demo_ws:send({update, self(), length(Responses) + 1}),
+            logger ! {update, self(), length(Responses) + 1},
             handle_bid_responses(AuctionId, [Response|Responses]);
         {_Client, _AuctionId, _Bid} ->
             handle_bid_responses(AuctionId, Responses)

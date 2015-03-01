@@ -24,6 +24,7 @@ start(_Type, _Args) ->
     {ok, _} = cowboy:start_http(http, 100, [{port, 8888}], [
         {env, [{dispatch, Dispatch}]}
     ]),
+    logger:start(), %% TODO put this into the supervision tree
     auction_demo_sup:start_link().
 
 stop(_State) ->
