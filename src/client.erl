@@ -38,6 +38,7 @@ make_bid(crash) ->
 
 behaviour() ->
     %[return, sleep, work, crash].
+    %[work].
     [return].
 
 fac(1) ->

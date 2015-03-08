@@ -20,4 +20,10 @@ demo: compile
 	$(ERL) -pa $(CURDIR)/ebin $(CURDIR)/deps/*/ebin -s sync -s auction_demo_app
 
 nosmp: compile
-	$(ERL) -smp disable -pa $(CURDIR)/ebin $(CURDIR)/deps/*/ebin -s auction_demo_app
+	$(ERL) -pa $(CURDIR)/ebin $(CURDIR)/deps/*/ebin -s sync -s auction_demo_app -smp disable 
+
+demo8: compile
+	$(ERL) -pa $(CURDIR)/ebin $(CURDIR)/deps/*/ebin -s sync -s auction_demo_app +S 8:8
+
+demo16: compile
+	$(ERL) -pa $(CURDIR)/ebin $(CURDIR)/deps/*/ebin -s sync -s auction_demo_app +S 16:16
