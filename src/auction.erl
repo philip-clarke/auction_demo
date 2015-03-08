@@ -4,7 +4,7 @@
 start(NumClients) ->
     Clients = spawn_clients(NumClients),
     Pid = erlang:spawn(fun() -> init(Clients) end),
-    logger ! {create, Pid, 1}.
+    logger ! {create, Pid, 0}.
 
 spawn_clients(0) ->
     [];

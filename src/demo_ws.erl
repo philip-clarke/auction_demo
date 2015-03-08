@@ -32,10 +32,9 @@ websocket_info({create, Pid, Value}, Req, State) ->
 	{reply, {text, Json}, Req, State};
 websocket_info({update, Pid, Value}, Req, State) ->
     BinPid = list_to_binary(pid_to_list(Pid)),
-    %% add + 1 as the bar chart has value 1 to represent the auction
     Data = [
                {action, update},
-               {data, [#{<<"pid">> => BinPid, <<"value">> => Value + 1}]}
+               {data, [#{<<"pid">> => BinPid, <<"value">> => Value}]}
             ],
     Json = jsx:encode(Data),
 	{reply, {text, Json}, Req, State};

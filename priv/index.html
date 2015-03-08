@@ -17,10 +17,14 @@
             fill: steelblue;
         }
 
+        .chart circle {
+            fill: red;
+        }
+
         .chart text {
             fill: white;
             font: 10px sans-serif;
-            text-anchor: end;
+            text-anchor: middle;
         }
 
   </style>
@@ -34,7 +38,6 @@
 
             self.init = function(num_rows, num_clients) {
                 self.make_chart(num_rows, num_clients);
-                self.chart.selectAll("g").remove();
             };
 
             self.key = function(d) {
@@ -46,6 +49,8 @@
             };
 
             self.make_chart = function(num_rows, num_clients) {
+                d3.select(".chart").selectAll(".auctions").remove();
+
                 var width = 1024,
                     height = 700,
                     num_clients = num_clients != 0 ? num_clients : 100;
@@ -64,6 +69,12 @@
                     .attr("width", width)
                     .attr("height", height);
 
+
+                self.auctions = self.chart.append("g").attr("class", "auctions");
+                //self.bars = self.chart.append("g")
+                //                        .attr("class", "bars")
+                //                        .attr("transform", "translate(" + barHeight + ", 0)");
+
                 self.num_bars = 0;
                 self.num_clients = num_clients;
                 self.barHeight = barHeight;
@@ -74,28 +85,54 @@
 
             self.create_data = function(data) {
                 console.log("create_data " + JSON.stringify(data));
-                var bar = self.chart.selectAll("g")
+
+                var auction = self.auctions.selectAll("g")
                     .data(data, self.key)
-                    .enter().append("g")
+                    .enter()
+                    .append("g")
+                    .attr("class", "auction")
                     .attr("transform", function(d) { return "translate(0," + self.num_bars * self.barHeight + ")"; });
+
+                var circle = auction.selectAll("g")
+                    .data(data, self.key)
+                    .enter()
+                    .append("circle");
+
+                circle
+                    .attr("cx", self.barHeight/2)
+                    .attr("cy", self.barHeight/2)
+                    .attr("r", self.barHeight/2)
+
+                var circle_text = auction.selectAll("g")
+                    .data(data, self.key)
+                    .enter()
+                    .append("text");
+
+                circle_text
+                    .attr("x", self.barHeight/2)
+                    .attr("y", self.barHeight / 2)
+                    .attr("dy", ".35em")
+                    .text(function(d) { return d.pid; });
+
+                var bar = auction.selectAll("g")
+                    .data(data, self.key)
+                    .enter()
+                    .append("g")
+                    .attr("class", "bar")
+                    .attr("transform", "translate(" + barHeight + ", 0)");
 
                 bar.append("rect")
                     .attr("width", function(d) { return self.x(d.value); })
                     .attr("height", self.barHeight - 1);
-
-                bar.append("text")
-                    .attr("x", 50)
-                    .attr("y", self.barHeight / 2)
-                    .attr("dy", ".35em")
-                    .text(function(d) { return d.pid; });
 
                 self.num_bars++; // not correct as we don't consider how long data was
             };
 
             self.update_data = function(data) {
                 console.log("update_data " + JSON.stringify(data));
-                d3.selectAll('rect').data(data, self.key)
-                    .attr("width", function(d) { return self.x(d.value); })
+                self.auctions.selectAll('.bar rect')
+                    .data(data, self.key)
+                    .attr("width", function(d) { return self.x(d.value); });
             }
 
             self.connect = function() {
