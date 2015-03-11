@@ -20,24 +20,21 @@ websocket_handle(_Data, Req, State) ->
 
 websocket_info(post_init, Req, State) ->
     true = gproc:reg({p, l, ?MODULE}),
-    Json = jsx:encode([]),
 	{ok, Req, State};
 websocket_info({create, Pid, Value}, Req, State) ->
-    BinPid = list_to_binary(pid_to_list(Pid)),
-    Data = [
-               {action, create},
-               {data, [#{<<"pid">> => BinPid, <<"value">> => Value}]}
-            ],
-    Json = jsx:encode(Data),
+    Json = encode(create, Pid, Value),
 	{reply, {text, Json}, Req, State};
 websocket_info({update, Pid, Value}, Req, State) ->
-    BinPid = list_to_binary(pid_to_list(Pid)),
-    Data = [
-               {action, update},
-               {data, [#{<<"pid">> => BinPid, <<"value">> => Value}]}
-            ],
-    Json = jsx:encode(Data),
+    Json = encode(update ,Pid, Value),
 	{reply, {text, Json}, Req, State};
 websocket_info(Info, Req, State) ->
     exit(Info),
 	{ok, Req, State}.
+
+encode(Action, Pid, Value) ->
+    BinPid = list_to_binary(pid_to_list(Pid)),
+    Data = [
+               {action, Action},
+               {data, [#{<<"pid">> => BinPid, <<"value">> => Value}]}
+            ],
+    jsx:encode(Data).
