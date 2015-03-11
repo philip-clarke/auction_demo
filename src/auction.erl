@@ -15,7 +15,7 @@ spawn_clients(NumClients) ->
 init(Clients) ->
     AuctionId = erlang:now(),
     send_bid_requests(AuctionId, Clients),
-    handle_bid_responses(AuctionId).
+    handle_bid_responses(AuctionId, length(Clients)).
 
 send_bid_requests(_AuctionId, []) ->
     erlang:send_after(5000, self(), finished),
@@ -24,21 +24,24 @@ send_bid_requests(AuctionId, [Client|Clients]) ->
     Client ! {self(), AuctionId},
     send_bid_requests(AuctionId, Clients).
 
-handle_bid_responses(AuctionId) ->
-    handle_bid_responses(AuctionId, []).
+handle_bid_responses(AuctionId, NumClients) ->
+    handle_bid_responses(AuctionId, NumClients, []).
 
-handle_bid_responses(AuctionId, Bids) ->
+handle_bid_responses(AuctionId, _NumClients = 0, Responses) ->
+    choose_winner(Responses, AuctionId);
+handle_bid_responses(AuctionId, NumClients, Responses) ->
     receive
         finished ->
-            choose_winner(AuctionId, Bids);
+            choose_winner(Responses, AuctionId);
         {_From, AuctionId, Bid} ->
-            logger ! {update, self(), length(Bids) + 1},
-            handle_bid_responses(AuctionId, [Bid | Bids]);
-        {_From, _AuctionId, _Bid} ->
-            handle_bid_responses(AuctionId, Bids)
+            logger ! {update, self(), length(Responses) + 1},
+            handle_bid_responses(AuctionId, NumClients - 1, [Bid|Responses]);
+        {_From, _, _} ->
+            handle_bid_responses(AuctionId, NumClients, Responses)
     end.
 
-choose_winner(AuctionId, []) ->
+choose_winner([], AuctionId) ->
     logger ! {no_winner, AuctionId};
-choose_winner(AuctionId, Bids) ->
-    logger ! {winner, AuctionId, lists:max(Bids)}.
+choose_winner(Responses, AuctionId) ->
+    Winner = lists:max(Responses),
+    logger !{winner, AuctionId, Winner}.
