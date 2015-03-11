@@ -10,7 +10,9 @@ loop() ->
         {no_winner, AuctionId} ->
             io:format("No winner for ~p~n", [AuctionId]);
         {winner, AuctionId, Value} ->
-            io:format("The winning value for ~p is ~p~n", [AuctionId, Value]);
+            io:format("The winning value for ~p is ~p, took ~p ms~n", [AuctionId,
+                                                           Value,
+                                                           timer:now_diff(erlang:now(), AuctionId)/1000]);
         {create, Pid, Value} ->
             demo_ws:send({create, Pid, Value});
         {update, Pid, Value} ->
