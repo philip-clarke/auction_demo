@@ -6,6 +6,7 @@ start(NumClients) ->
     logger ! {create, Pid, 0}.
 
 init(NumClients) ->
+    process_flag(trap_exit, true),
     AuctionId = erlang:now(),
     Clients = spawn_clients(NumClients),
     send_bid_requests(AuctionId, Clients),
@@ -14,7 +15,7 @@ init(NumClients) ->
 spawn_clients(0) ->
     [];
 spawn_clients(NumClients) ->
-    Pid = spawn(client, start, []),
+    Pid = spawn_link(client, start, []),
     [Pid | spawn_clients(NumClients - 1)].
 
 send_bid_requests(_AuctionId, []) ->
@@ -36,7 +37,10 @@ handle_bid_responses(AuctionId, NumClients, Responses) ->
         {_From, AuctionId, Bid} ->
             logger ! {update, self(), length(Responses) + 1},
             handle_bid_responses(AuctionId, NumClients - 1, [Bid|Responses]);
-        {_From, _, _} ->
+        {'EXIT', _From, Reason} = Term when Reason /= normal ->
+            logger ! Term,
+            handle_bid_responses(AuctionId, NumClients - 1, Responses);
+        _Other ->
             handle_bid_responses(AuctionId, NumClients, Responses)
     end.
 

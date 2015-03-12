@@ -13,6 +13,10 @@ loop() ->
             io:format("The winning value for ~p is ~p, took ~p ms~n", [AuctionId,
                                                            Value,
                                                            timer:now_diff(erlang:now(), AuctionId)/1000]);
+        {'EXIT', _From, normal} ->
+            ok;
+        {'EXIT', From, Reason} ->
+            io:format("Exit from ~p due to ~p~n", [From, Reason]);
         {create, Pid, Value} ->
             demo_ws:send({create, Pid, Value});
         {update, Pid, Value} ->
