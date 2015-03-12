@@ -15,4 +15,5 @@ handle_bid_request() ->
 
 send_bid_response(From, AuctionId) ->
     Bid = random:uniform(5),
+    util:fac(800),
     From ! {self(), AuctionId, Bid}.
