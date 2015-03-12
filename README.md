@@ -1,26 +1,29 @@
 Auction Demo
 =============
-This repo will contain a demonstration of concurrency in erlang using an auction model.
+This repo will contain a demonstration of concurrency in erlang by running serveral auctions 
+in parallel.
 One auction process shall be responsible for initiating a request to client processes.
 The client processes can return with a number.
 The client with the highest number shall win.
 There can be many auction processes all with their own clients running concurrently.
 
-During the auction a web page will display the process of the ongoing auctions.
-The web page will use a bar chart created by d3.js.
-The web page will get updated by the auction process via a web socket.
-
-
 Compiling and Running
 =============
-make compile
-make dev
+First time running, do
+make deps
+to fetch all dependencies and compile the modules
 
-The dev target will start up an erlang console for you.
-To run an auction type:
-auction:start(10).
+After this you can do
+make demo
 
-This will run 10 auctions in parallel.  Each auction will have 100 clients.
-After a few secounds the output will display on the console
+which will run the application.
+
+If open a web browser at http://127.0.0.1:8888
+you will have a web interface were you can set the number of auctions and the
+number of clients per auction.
+
+The web ui will have one red circle for each auction.  As each auction gets a response
+the blue bar will be incremented for each response.
+
 
 
