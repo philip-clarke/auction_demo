@@ -2,20 +2,20 @@
 -compile([export_all, debug_info]).
 
 start(NumClients) ->
-    Clients = spawn_clients(NumClients),
-    Pid = erlang:spawn(fun() -> init(Clients) end),
+    Pid = erlang:spawn(fun() -> init(NumClients) end),
     logger ! {create, Pid, 0}.
+
+init(NumClients) ->
+    AuctionId = erlang:now(),
+    Clients = spawn_clients(NumClients),
+    send_bid_requests(AuctionId, Clients),
+    handle_bid_responses(AuctionId, NumClients, []).
 
 spawn_clients(0) ->
     [];
 spawn_clients(NumClients) ->
     Pid = spawn(client, start, []),
     [Pid | spawn_clients(NumClients - 1)].
-
-init(Clients) ->
-    AuctionId = erlang:now(),
-    send_bid_requests(AuctionId, Clients),
-    handle_bid_responses(AuctionId, length(Clients)).
 
 send_bid_requests(_AuctionId, []) ->
     erlang:send_after(5000, self(), finished),
